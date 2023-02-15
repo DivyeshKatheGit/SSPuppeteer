@@ -33,30 +33,45 @@ async function WebSiteScreenShot(website_url) {
   const filename = moment().unix();
   const filepath = __dirname + `/uploads/${filename}.jpg`;
 
-  const browser = await puppeteer.launch({
-    headless: true
-  });
+  try {
+    const browser = await puppeteer.launch({
+      executablePath: '',
+      headless: true
+    });
 
-  const page = await browser.newPage();
+    const page = await browser.newPage();
 
-  await page.setViewport({ width: 1940, height: 1080 });
-  await page.goto(website_url, { waitUntil: 'networkidle0' });
+    await page.setViewport({ width: 1940, height: 1080 });
+    await page.goto(website_url, { waitUntil: 'networkidle0' });
 
-  await page.screenshot({
-    path: filepath,
-    fullPage: true
-  });
+    await page.screenshot({
+      path: filepath,
+      fullPage: true
+    });
 
-  await browser.close();
+    await browser.close();
 
-  return { filename, filepath };
+    return { filename, filepath };
+  }
+  catch (e) {
+    return false;
+  }
 }
 
 app.post('/upload', async (req, res) => {
 
   let { url } = req.body;
 
-  const { filename, filepath } = await WebSiteScreenShot(url);
+  const data = await WebSiteScreenShot(url);
+
+  if (!data) {
+    res.json({
+      error: true,
+    });
+    return;
+  }
+
+  const { filename, filepath } = data;
 
   const cloud_res = cloudinary.uploader.upload(filepath, { public_id: filename });
   cloud_res.then(async (data) => {
