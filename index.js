@@ -92,7 +92,8 @@ app.post('/upload', async (req, res) => {
     console.log(data)
     fs.unlink(filepath, (err) => { console.log(err) });
     res.json({
-      error: false
+      error: false,
+      ...data
     })
 
   }).catch((err) => {
