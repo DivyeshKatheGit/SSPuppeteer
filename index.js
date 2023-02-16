@@ -35,7 +35,6 @@ async function WebSiteScreenShot(website_url) {
 
   try {
     const browser = await puppeteer.launch({
-      executablePath: '',
       headless: true
     });
 
